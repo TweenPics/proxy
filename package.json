@@ -8,10 +8,10 @@
 	"author": "Julian Aubourg <j@ubourg.net> (http://jaubourg.net/)",
 	"dependencies": {
 		"commander": "2.9.x",
-		"http-proxy": "1.13.x",
+		"http-proxy": "1.14.x",
 		"james-browser-launcher": "1.2.x",
-		"request": "2.72.x",
-		"sharp": "0.15.x",
+		"request": "2.74.x",
+		"sharp": "0.16.x",
 		"wires": "0.5.x"
 	}
 }
