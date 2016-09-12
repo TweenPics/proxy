@@ -3,5 +3,5 @@
 	"browser": "chrome",
 	"origin": "https://i.tween.pics",
 	"port": 8080,
-	"start": ""
+	"start": "https://www.tween.pics"
 }
