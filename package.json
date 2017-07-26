@@ -1,17 +1,21 @@
 {
-	"name": "tweenpics-proxy",
-	"version": "0.0.0",
-	"description": "Proxy server to work with TweenPics locally",
 	"bin": {
 		"tweenpics-proxy": "index.js"
 	},
-	"author": "Julian Aubourg <j@ubourg.net> (http://jaubourg.net/)",
 	"dependencies": {
-		"commander": "2.9.x",
-		"http-proxy": "1.14.x",
+		"commander": "2.11.0",
+		"http-proxy": "1.16.2",
 		"james-browser-launcher": "1.3.1",
-		"request": "2.74.x",
-		"sharp": "0.16.x",
-		"wires": "0.5.x"
-	}
+		"request": "2.81.0",
+		"sharp": "0.18.2",
+		"wires": "1.1.1"
+	},
+	"description": "Proxy server to work with TweenPics locally",
+	"engines": {
+		"node": ">=6"
+	},
+	"license": "MIT",
+	"name": "@tweenpics/proxy",
+	"repository": "tweenpics/proxy",
+	"version": "0.1.0"
 }

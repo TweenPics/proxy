@@ -8,7 +8,7 @@ The TweenPics proxy makes it possible to use the full power of TweenPics in a de
 
 ## Install
 
-`npm install -g tweenpics-proxy`
+`npm install -g @tweenpics/proxy`
 
 ## Usage
 
@@ -32,7 +32,7 @@ The TweenPics proxy makes it possible to use the full power of TweenPics in a de
 - _-a, --authent [token]_ (`String`, no default): this is the TweenPics authentication token.
 - _-b, --browser [name]_ (`String`, default `"chrome"`): name of the browser to proxy. The proxy will automatically open the browser with a fresh profile.
 - _-p, --port [number]_ (`Integer`, default `8080`): this is the port the proxy will use on your local machine. The next port will also be used for internal purposes. For instance, if you set the port option to `8010` then the port `8011` will also be used.
-- _-s, --start [url]_ (`String`, no default): this is the page that should be loaded by the browser when launched. By default, a blank page will appear. The proxy does support the `file:` protocol, so feel free to use local urls if needed.
+- _-s, --start [url]_ (`String`, default `https://www.tweenpics.com`): this is the page that should be loaded by the browser when launched. The proxy does support the `file:` protocol, so feel free to use local urls if needed.
 
 ## Overriding options with environment variables
 
