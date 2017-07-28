@@ -28,7 +28,14 @@
             "no-console": "off",
             "no-magic-numbers": "off",
             "no-process-exit": "off",
-            "no-sync": "off"
+            "no-sync": "off",
+            "no-param-reassign": [
+                "warn",
+                {
+                    "props": true,
+                    "ignorePropertyModificationsFor": [ "headers", "response" ]
+                }
+            ]
         }
     },
     "license": "MIT",
