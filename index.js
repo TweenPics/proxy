@@ -2,9 +2,9 @@
 
 "use strict";
 
-const config = require( `./lib/config` );
+const { browser, cert, key, origin, port, start } = require( `./lib/config` );
 const handleImage = require( `./lib/handleImage` );
-const launcher = require( `james-browser-launcher` );
+const launchers = require( `./lib/launchers` );
 const parseUrl = require( `url` ).parse;
 const proxy = require( `./lib/proxy` );
 
@@ -15,15 +15,19 @@ const proxyPath = `/proxy`;
 
 let insecureAccepted = false;
 
-config.then(
-    ( { browser, cert, key, origin, port, start } ) =>
+launchers
+    .get( browser )
+    .then( launch =>
         proxy( {
             port,
             key,
             cert,
             "isHandled": url => rTweenPics.test( url ),
             "handle": ( { url, headers }, response ) => {
-                let { path, hash } = parseUrl( url );
+                let actualUrl = parseUrl( url );
+                const { hash } = actualUrl;
+                let { path } = actualUrl;
+                actualUrl = undefined;
                 if ( path === proxyPath ) {
                     if ( !insecureAccepted ) {
                         insecureAccepted = true;
@@ -33,50 +37,41 @@ config.then(
                         "redirect": start,
                     };
                 }
-                url = undefined;
                 path = ( path || `` ).replace(
                     rImage,
                     ( _, found ) => {
-                        url = found.replace( rAuth, `` ) + ( hash || `` );
+                        actualUrl = found.replace( rAuth, `` ) + ( hash || `` );
                         return ``;
                     }
                 );
-                if ( !url ) {
+                if ( !actualUrl ) {
                     return origin;
                 }
                 handleImage( {
                     headers,
-                    url,
+                    "url": actualUrl,
                     path,
                     response,
                 } );
                 return undefined;
             },
-        } ).then(
-            proxy => launcher(
-                ( error, launch ) => {
-                    if ( error ) {
-                        console.error( `something went wrong:`, error.toString() );
-                        process.exit( -1 );
-                    }
-                    launch( `https://i.tween.pics${ proxyPath }`, {
-                        browser,
-                        proxy,
-                    }, ( launchError, instance ) => {
-                        if ( launchError ) {
-                            console.error( `something went wrong:`, launchError.toString() );
-                            process.exit( -1 );
-                        }
-                        console.log( `browser started with PID:`, instance.pid );
-                        if ( !insecureAccepted ) {
-                            console.log( `please accept insecure https for i.tween.pics...` );
-                        }
-                        instance.on( `stop`, code => {
-                            console.log( `browser stopped with exit code:`, code );
-                            process.exit( code );
-                        } );
-                    } );
-                }
+        } )
+            .then( proxyInfo =>
+                launch( `https://i.tween.pics${ proxyPath }`, proxyInfo, {
+                    "close": code => {
+                        console.log( `browser stopped with exit code:`, code );
+                        process.exit( code );
+                    },
+                } )
             )
-        )
-);
+            .then( processInstance => {
+                console.log( `browser started with PID:`, processInstance.pid );
+                if ( !insecureAccepted ) {
+                    console.log( `please accept insecure https for i.tween.pics...` );
+                }
+            } )
+    )
+    .catch( error => {
+        console.error( `something went wrong:`, error.toString() );
+        process.exit( -1 );
+    } );
