@@ -31,7 +31,6 @@
             "no-console": "off",
             "no-magic-numbers": "off",
             "no-process-exit": "off",
-            "no-sync": "off",
             "no-param-reassign": [
                 "error",
                 {
