@@ -2,6 +2,5 @@
 	"authent": "{?>TWEENPICS_AUTHENT}",
 	"browser": "chrome",
 	"origin": "https://i.tween.pics",
-	"port": 8080,
 	"start": "https://www.tweenpics.com"
 }

@@ -1,6 +1,6 @@
 {
     "bin": {
-        "tweenpics-proxy": "index.js"
+        "tweenpics-proxy": "lib/bin.js"
     },
     "dependencies": {
         "commander": "2.11.0",
