@@ -1,17 +1,10 @@
 {
     "bin": {
-        "tweenpics-proxy": "lib/bin.js"
+        "tweenpics-proxy": "index.js"
     },
     "dependencies": {
         "commander": "2.11.0",
-        "fs-extra": "4.0.2",
-        "http-proxy": "1.16.2",
-        "karma-chrome-launcher": "2.2.0",
-        "karma-firefox-launcher": "1.0.1",
-        "request": "2.81.0",
-        "sharp": "0.18.3",
-        "uuid": "3.1.0",
-        "wires": "1.1.1"
+        "@tweenpics/proxy-internal": "0.1.0"
     },
     "devDependencies": {
         "eslint": "4.7.0",
@@ -27,7 +20,6 @@
             "node": true
         },
         "rules": {
-            "global-require": "off",
             "no-console": "off",
             "no-magic-numbers": "off",
             "no-process-exit": "off",

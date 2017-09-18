@@ -1,14 +1,14 @@
+#!/usr/bin/env node
+
 "use strict";
 
-require( `wires` );
-
-const baseConfig = require( `./baseConfig` );
-const packageInfo = require( `../package` );
+const { baseConfig, createProxyServer, launchers } = require( `@tweenpics/proxy-internal` );
+const packageInfo = require( `./package` );
 const program = require( `commander` );
 
 const outputDefault = value => ( value ? `\n                       (${ value })` : `` );
 
-module.exports = async () => {
+const getCommandLineConfig = async () => {
 
     const config = await baseConfig();
 
@@ -44,8 +44,6 @@ module.exports = async () => {
         process.exit( 1 );
     }
 
-    const launchers = require( `./launchers` );
-
     if ( !launchers.exists( config.browser ) ) {
         console.error(
             `browser "${ config.browser }" is not a valid browser name.\n\nvalid browser names are:\n${
@@ -60,3 +58,30 @@ module.exports = async () => {
 
     return config;
 };
+
+( async () => {
+    try {
+        const config = await getCommandLineConfig();
+        const launch = await launchers.get( config.browser );
+        const proxyServer = createProxyServer( config );
+        console.log( `proxy server listening on port #${ proxyServer.port }` );
+        launch(
+            config.start,
+            proxyServer,
+            {
+                "close": code => {
+                    console.log( `browser stopped with exit code ${ code }` );
+                    process.exit( code );
+                },
+                "created": pid => {
+                    console.log( `${ config.browser } started with pid #${ pid }` );
+                    console.log( `please accept insecure https://i.tween.pics !` );
+                },
+                "unsecuredAccepted": () => console.log( `unsecured https://i.tween.pics accepted.` ),
+            }
+        );
+    } catch ( error ) {
+        console.error( `something went wrong: ${ error.toString() }` );
+        process.exit( -1 );
+    }
+} )();
