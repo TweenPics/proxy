@@ -62,22 +62,23 @@ const getCommandLineConfig = async () => {
 ( async () => {
     try {
         const config = await getCommandLineConfig();
-        const launch = await launchers.get( config.browser );
+        const { browser, start } = config;
+        const launch = await launchers.get( browser );
         const proxyServer = createProxyServer( config );
         console.log( `proxy server listening on port #${ proxyServer.port }` );
         launch(
-            config.start,
+            start,
             proxyServer,
             {
                 "close": code => {
-                    console.log( `browser stopped with exit code ${ code }` );
+                    console.log( `${ browser } stopped with exit code ${ code }` );
                     process.exit( code );
                 },
                 "created": pid => {
-                    console.log( `${ config.browser } started with pid #${ pid }` );
-                    console.log( `please accept unsecured https://i.tween.pics !` );
+                    console.log( `${ browser } started with pid #${ pid }` );
+                    console.log( `please accept unsecured https://i.tween.pics` );
                 },
-                "unsecuredAccepted": () => console.log( `unsecured https://i.tween.pics accepted.` ),
+                "unsecuredAccepted": () => console.log( `unsecured https://i.tween.pics accepted` ),
             }
         );
     } catch ( error ) {
