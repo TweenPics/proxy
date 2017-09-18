@@ -75,7 +75,7 @@ const getCommandLineConfig = async () => {
                 },
                 "created": pid => {
                     console.log( `${ config.browser } started with pid #${ pid }` );
-                    console.log( `please accept insecure https://i.tween.pics !` );
+                    console.log( `please accept unsecured https://i.tween.pics !` );
                 },
                 "unsecuredAccepted": () => console.log( `unsecured https://i.tween.pics accepted.` ),
             }
