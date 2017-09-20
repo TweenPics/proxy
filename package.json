@@ -4,13 +4,13 @@
     },
     "dependencies": {
         "commander": "2.11.0",
-        "@tweenpics/proxy-internal": "0.1.0"
+        "@tweenpics/proxy-internal": "0.2.0"
     },
     "devDependencies": {
         "eslint": "4.7.0",
         "eslint-config-creative-area": "0.7.0"
     },
-    "description": "Proxy server to work with TweenPics locally",
+    "description": "a command-line tool to work with TweenPics locally",
     "engines": {
         "node": ">=8"
     },

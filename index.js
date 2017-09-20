@@ -2,15 +2,39 @@
 
 "use strict";
 
-const { baseConfig, createProxyServer, launchers } = require( `@tweenpics/proxy-internal` );
+const { baseConfig, createProxyServer, launchers, validateAuthent } = require( `@tweenpics/proxy-internal` );
 const packageInfo = require( `./package` );
 const program = require( `commander` );
+
+const rLineStart = /^/gm;
+
+const log = string => process.stdout.write( `${ string.replace( rLineStart, `  ` ) }\n` );
+const error = string => process.stderr.write( `${ string.replace( rLineStart, `  ` ) }\n` );
 
 const outputDefault = value => ( value ? `\n                       (${ value })` : `` );
 
 const getCommandLineConfig = async () => {
 
     const config = await baseConfig();
+    const launchersCollection = await launchers;
+
+    const browserExplainer = errorMessage => {
+        const list = ( exists, intro, noneMessage = `` ) => {
+            const array = launchersCollection.getAll( exists ).filter( ( { installable } ) => installable );
+            const message = array.map( ( { id, name } ) => `- ${ id } (${ name })` ).join( `\n` );
+            return message ? `\n${ intro }\n\n${ message }` : noneMessage && `\n${ noneMessage }`;
+        };
+        return ( errorMessage ? `${ errorMessage }\n` : `` ) +
+            list(
+                true,
+                `browsers installed:`,
+                `no known browser installed!`
+            ) +
+            list(
+                false,
+                `\nyou could install and then use:`
+            );
+    };
 
     program
         .version( packageInfo.version )
@@ -18,10 +42,13 @@ const getCommandLineConfig = async () => {
         .option( `-a, --authent [token]`, `specify authentication token${ outputDefault( config.authent ) }` )
         .option( `-b, --browser [name]`, `specify the browser to open (${ config.browser })` )
         .option( `-s, --start [url]`, `specify start page${ outputDefault( config.start ) }` )
+        .on( `--help`, () => {
+            log( `\n${ browserExplainer() }` );
+        } )
         .parse( process.argv );
 
     if ( program.args.length ) {
-        console.error( `unexpected arguments` );
+        error( `\nunexpected arguments` );
         program.outputHelp();
         process.exit( 1 );
     }
@@ -29,30 +56,25 @@ const getCommandLineConfig = async () => {
     [ `authent`, `browser`, `start` ].forEach( key => ( config[ key ] = program[ key ] || config[ key ] ) );
 
     if ( !config.authent ) {
-        console.error( `authentification token required` );
+        error( `\nauthentification token required` );
         program.outputHelp();
         process.exit( 1 );
     }
 
-    if ( !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$/.test( config.authent ) ) {
-        console.error( `authentification token "${ config.authent }" is invalid` );
+    if ( !validateAuthent( config.authent ) ) {
+        error( `\n${ config.authent } is not a valid authentification token` );
         process.exit( 2 );
     }
 
     if ( !config.browser ) {
-        console.error( `browser is required` );
+        error( await browserExplainer( `\nbrowser is required` ) );
         process.exit( 1 );
     }
 
-    if ( !launchers.exists( config.browser ) ) {
-        console.error(
-            `browser "${ config.browser }" is not a valid browser name.\n\nvalid browser names are:\n${
-                launchers
-                    .getExisting()
-                    .map( name => `- ${ name }` )
-                    .join( `\n` )
-            }`
-        );
+    try {
+        config.launcher = launchersCollection.get( config.browser );
+    } catch ( launcherError ) {
+        error( browserExplainer( `\n${ launcherError.message }` ) );
         process.exit( 2 );
     }
 
@@ -62,27 +84,26 @@ const getCommandLineConfig = async () => {
 ( async () => {
     try {
         const config = await getCommandLineConfig();
-        const { browser, start } = config;
-        const launch = await launchers.get( browser );
+        const { browser, launcher, start } = config;
         const proxyServer = createProxyServer( config );
-        console.log( `proxy server listening on port #${ proxyServer.port }` );
-        launch(
+        log( `\nproxy server listening on port #${ proxyServer.port }` );
+        launcher(
             start,
             proxyServer,
             {
                 "close": code => {
-                    console.log( `${ browser } stopped with exit code ${ code }` );
+                    log( `${ browser } stopped with exit code ${ code }` );
                     process.exit( code );
                 },
                 "created": pid => {
-                    console.log( `${ browser } started with pid #${ pid }` );
-                    console.log( `please accept unsecured https://i.tween.pics` );
+                    log( `${ browser } started with pid #${ pid }` );
+                    log( `please accept unsecured https://i.tween.pics` );
                 },
-                "unsecuredAccepted": () => console.log( `unsecured https://i.tween.pics accepted` ),
+                "unsecuredAccepted": () => log( `unsecured https://i.tween.pics accepted` ),
             }
         );
-    } catch ( error ) {
-        console.error( `something went wrong: ${ error.toString() }` );
+    } catch ( e ) {
+        error( `\nsomething went wrong: ${ e.toString() }` );
         process.exit( -1 );
     }
 } )();
