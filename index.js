@@ -13,6 +13,12 @@ const error = string => process.stderr.write( `${ string.replace( rLineStart, ` 
 
 const outputDefault = value => ( value ? `\n                       (${ value })` : `` );
 
+const logLevels = new Map( [
+    [ `0`, 0 ],
+    [ `1`, 1 ],
+    [ `2`, 2 ],
+] );
+
 const getCommandLineConfig = async () => {
 
     const config = await baseConfig();
@@ -48,6 +54,28 @@ const getCommandLineConfig = async () => {
         .description( packageInfo.description )
         .option( `-a, --authent [token]`, `specify authentication token${ outputDefault( config.authent ) }` )
         .option( `-b, --browser [name]`, `specify the browser to open (${ config.browser })` )
+        .option(
+            `-l, --log [level]`,
+            `log level: 0 = none, 1 = captured, 2 = all (0)`,
+            str => {
+                const number = logLevels.get( str );
+                if ( number === undefined ) {
+                    error( `\nlog level must be 0, 1, or 2` );
+                    program.outputHelp();
+                    process.exit( 1 );
+                }
+                if ( number ) {
+                    const handlers = {
+                        "take": url => log( `TAKE: ${ url }` ),
+                    };
+                    if ( number > 1 ) {
+                        handlers.pass = url => log( `PASS: ${ url }` );
+                    }
+                    return handlers;
+                }
+                return undefined;
+            }
+        )
         .option( `-s, --start [url]`, `specify start page${ outputDefault( config.start ) }` )
         .on( `--help`, () => {
             log( `\n${ browserExplainer() }` );
@@ -60,7 +88,7 @@ const getCommandLineConfig = async () => {
         process.exit( 1 );
     }
 
-    [ `authent`, `browser`, `start` ].forEach( key => ( config[ key ] = program[ key ] || config[ key ] ) );
+    [ `authent`, `browser`, `log`, `start` ].forEach( key => ( config[ key ] = program[ key ] || config[ key ] ) );
 
     if ( !config.authent ) {
         error( `\nauthentification token required` );
@@ -92,7 +120,7 @@ const getCommandLineConfig = async () => {
     try {
         const config = await getCommandLineConfig();
         const { browser, launcher, start } = config;
-        const proxyServer = createProxyServer( config );
+        const proxyServer = createProxyServer( config, config.log );
         log( `\nproxy server listening on port #${ proxyServer.port }` );
         launcher(
             start,
