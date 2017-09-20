@@ -19,20 +19,27 @@ const getCommandLineConfig = async () => {
     const launchersCollection = await launchers;
 
     const browserExplainer = errorMessage => {
-        const list = ( exists, intro, noneMessage = `` ) => {
-            const array = launchersCollection.getAll( exists ).filter( ( { installable } ) => installable );
+        const list = ( exists, compat, intro, noneMessage = `` ) => {
+            const array = launchersCollection.getAll( exists ).filter( ( { installable } ) => installable === compat );
             const message = array.map( ( { id, name } ) => `- ${ id } (${ name })` ).join( `\n` );
-            return message ? `\n${ intro }\n\n${ message }` : noneMessage && `\n${ noneMessage }`;
+            return message ? `\n${ intro }\n${ message }` : noneMessage && `\n${ noneMessage }`;
         };
         return ( errorMessage ? `${ errorMessage }\n` : `` ) +
             list(
+                true,
                 true,
                 `browsers installed:`,
                 `no known browser installed!`
             ) +
             list(
                 false,
-                `\nyou could install and then use:`
+                true,
+                `\nbrowsers that could be installed:`
+            ) +
+            list(
+                false,
+                false,
+                `\nbrowsers that can't be installed:`
             );
     };
 
