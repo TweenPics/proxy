@@ -45,7 +45,7 @@ const getCommandLineConfig = async () => {
             list(
                 false,
                 false,
-                `\nbrowsers that can't be installed:`
+                `\nbrowsers that are not supported on this OS:`
             );
     };
 
@@ -132,9 +132,9 @@ const getCommandLineConfig = async () => {
                 },
                 "created": pid => {
                     log( `${ browser } started with pid #${ pid }` );
-                    log( `please accept unsecured https://i.tween.pics` );
+                    log( `please accept unsecured https://i.tween.pics then https://i.twic.pics` );
                 },
-                "unsecuredAccepted": () => log( `unsecured https://i.tween.pics accepted` ),
+                "unsecuredAccepted": () => log( `unsecured https://i.tween.pics then https://i.twic.pics accepted` ),
             }
         );
     } catch ( e ) {
